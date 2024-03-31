@@ -20,7 +20,7 @@
       <a href="{{ route('company.index') }}">戻る</a>
     </button>
   </div>
-  <form method="POST" action="{{ route('deteil.update', [$hensu->id]) }}">
+  <form method="POST" action="{{ route('deteil.update', [$company->id]) }}">
     @csrf
     @method('PUT')
     <div class="mb-4">
@@ -28,28 +28,28 @@
         社名/かな  
     </label>
     <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-        type="text" name="Com_Name" placeholder="新規のTodo" value="{{ $hensu->Com_Name }}">
+        type="text" name="Com_Name" placeholder="新規のTodo" value="{{ $company->Com_Name }}">
     </div>
     <div class="mb-4">
     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
         住所
     </label>
     <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-        type="text"name="Address" placeholder="新規のTodo" value="{{ $hensu->Address }}">
+        type="text"name="Address" placeholder="新規のTodo" value="{{ $company->Address }}">
     </div>
     <div class="mb-4">
     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
         電話番号
     </label>
     <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-        type="text"name="Tel" placeholder="新規のTodo" value="{{ $hensu->Tel }}">
+        type="text"name="Tel" placeholder="新規のTodo" value="{{ $company->Tel }}">
     </div>
     <div class="mb-4">
     <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
         代表者名/かな
     </label>
     <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-        type="text"name="Name" placeholder="新規のTodo" value="{{ $hensu->Name }}">
+        type="text"name="Name" placeholder="新規のTodo" value="{{ $company->Name }}">
     </div>
 
     <div>請求者情報</div>           
@@ -59,35 +59,35 @@
           請求先名称/かな
       </label>
       <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          type="text" name="B_Name" placeholder="情報を入力して下さい"/>
+          type="text" name="B_Name" value="{{ $deteil->B_Name }}" placeholder="情報を入力して下さい"/>
       </div>
       <div class="mb-4">
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
           住所  
       </label>
           <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          type="text" name="B_Address" value="{{ $hensu1->B_Name }}" placeholder="情報を入力して下さい"/>
+          type="text" name="B_Address" value="{{ $deteil->B_Address }}" placeholder="情報を入力して下さい"/>
       </div>
       <div class="mb-4">
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
           電話番号
       </label>
       <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          type="text" name="B_Tel" placeholder="情報を入力して下さい"/>
+          type="text" name="B_Tel" value="{{ $deteil->B_Tel }}" placeholder="情報を入力して下さい"/>
       </div>
       <div class="mb-4">
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
           請求先部署  
       </label>
       <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          type="text" name="B_Dapart" placeholder="情報を入力して下さい"/>
+          type="text" name="B_Dapart" value="{{ $deteil->B_Dapart }}" placeholder="情報を入力して下さい"/>
       </div>
       <div class="mb-4">
       <label class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2">
           請求先宛名/かな  
       </label>
       <input class="appearance-none block w-full bg-white text-gray-700 border border-gray-200 rounded py-3 px-4 leading-tight focus:outline-none focus:bg-white focus:border-gray-500"
-          type="text" name="B_AddName" placeholder="情報を入力して下さい"/>
+          type="text" name="B_AddName" value="{{ $deteil->B_AddName }}" placeholder="情報を入力して下さい"/>
       </div>
 
 

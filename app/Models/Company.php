@@ -14,6 +14,8 @@ class Company extends Model
 
     protected $fillable = ["Com_Name", "Address", "Tel", "Name"]; //追記
     protected $dates = ['created_at', 'updated_at']; // 追記
+    
+    //外部キー制約
     public function deteil() {
         return $this->HasOne(Deteil::class, 'company_id');
     }

@@ -13,8 +13,12 @@ return new class extends Migration
     {
         Schema::create('deteils', function (Blueprint $table) {
         $table->id();
+
+        //”company_id”のカラムを追加
         $table->unsignedBigInteger("company_id"); 
+        //"companies"テーブルに外部制約キーを追加してondelete以降は参照しているレコードが削除されると関連する行を自動で削除
         $table->foreign("company_id")->references("id")->on("companies")->onDelete("cascade");
+
         $table->text("B_Name");
         $table->text("B_Address");
         $table->string("B_Tel");

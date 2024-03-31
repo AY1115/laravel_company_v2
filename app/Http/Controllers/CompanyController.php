@@ -6,6 +6,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Company; //追記
 use App\Models\Deteil; //追記２
+use App\Http\Requests\CompanyRequest; //バリデーション一覧
+use App\Http\Requests\CompanyDetailRequest; //会社・請求先住所のバリデーション
+use Illuminate\Support\Facades\DB; //トランザクションは、DBファサードが提供する機能なので、まずはDBファサードを有効にする
 
 class CompanyController extends Controller
 {
@@ -22,7 +25,8 @@ class CompanyController extends Controller
      */
     public function index()
     {
-        //allは論理削除されていないすべてのレコードを取得
+        //会社情報と請求先情報を同時に取得することができる
+            //※allは論理削除されていないすべてのレコードを取得
         $deteils = $this->deteil->all();
         $companies = $this->company->all(); //追記　MODEL(company.php)で作成した変数の情報をすべて取得
         return view("company.index", ["hensu" => $companies, "deteil" => $deteils]); //$companies の値をビューの変数  'hensu' という名前で渡すもの
@@ -33,39 +37,25 @@ class CompanyController extends Controller
      */
     public function create()
     {
-        //
+        //情報登録ページに移動
         return view("company.create");
     }
 
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(CompanyDetailRequest $request)
     {
-        //
-        //会社情報のバリデーション
-        $validated = $request->validate([
-            "Com_Name" => ["required", "string", "max:255"],
-            "Address" => ["required", "string", "max:255"],
-            "Tel" => ["required", "string", "max:255"],
-            "Name" => ["required", "string", "max:255"]
-        ]);
-        $this->company->fill($validated)->save();
+        //会社情報と請求先情報を同時に登録できる
+        $validation = $request->validated();
 
-        //詳細情報のバリデーション
-        $validatedDetail = $request->validate([ 
-            "B_Name" => ["required", "string", "max:255"],
-            "B_Address" => ["required", "string", "max:255"],
-            "B_Tel" => ["required", "string", "max:255"],
-            "B_Dapart" => ["required", "string", "max:255"],
-            "B_AddName" => ["required", "string", "max:255"],
-        ]);
-        $detail = new Deteil($validatedDetail);
-        $this->company->deteil()->save($detail); //deteil()は新しい Deteil モデルを保存してリレーションを確立する
-
-
+        DB::transaction(function() use ($validation) {
+            $params = $this->company->create($validation);
+            $params->deteil()->create($validation); //deteil()は新しい Deteil モデルを保存してリレーションを確立する
+        });
         return redirect()->route("company.index");
     }
+
 
     /**
      * Display the specified resource.
@@ -80,7 +70,8 @@ class CompanyController extends Controller
      */
     public function edit(string $id)
     {
-        //findOrFailは対象〈１つ〉のレコードを取得
+        //会社情報を取得
+            //findOrFailは対象〈１つ〉のレコードを取得
         $companies = $this->company->findOrFail($id);
         return view("company.edit", ["hensu" => $companies]);
     }
@@ -88,15 +79,10 @@ class CompanyController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CompanyRequest $request, string $id)
     {
-        //
-        $validated = $request->validate([
-            "Com_Name" => ["required", "string", "max:255"],
-            "Address" => ["required", "string", "max:255"],
-            "Tel" => ["required", "string", "max:255"],
-            "Name" => ["required", "string", "max:255"]
-        ]);
+        //会社情報の更新
+        $validated = $request->validated();
         $this->company->findOrFail($id)->update($validated);
         return redirect()->route("company.index");
     }
@@ -106,7 +92,7 @@ class CompanyController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        //会社情報のみ削除
         $this->company->findOrFail($id)->delete();
         return redirect()->route("company.index");
     }

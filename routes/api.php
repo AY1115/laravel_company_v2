@@ -26,7 +26,7 @@ Route::post('company.create', [CompanyController::class, 'store'])->name('api.co
 Route::get('company.{id}', [CompanyController::class, 'show'])->name('api.company.show');
 Route::put('company.{id}.update', [CompanyController::class, 'update'])->name('api.company.update');
 Route::delete('company.{id}.delete', [CompanyController::class, 'destroy'])->name('api.company.delete');
-Route::get('companydetail.{id}', [CompanyController::class, 'showWith'])->name('api.company.showWith');
+Route::get('companydetail.{id}', [CompanyController::class, 'ShowWith'])->name('api.company.showWith');
 Route::post('extra1.create', [CompanyController::class, 'extra1'])->name('api.company.create.extra1');
 Route::put('extra1.{id}.update', [CompanyController::class, 'extra2'])->name('api.company.update.extra1');
 

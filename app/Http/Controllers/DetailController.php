@@ -5,6 +5,9 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\Company; //追記
 use App\Models\Deteil; //追記２
+use App\Http\Requests\DetailRequest; //請求先住所のバリデーション
+use App\Http\Requests\CompanyDetailRequest; //会社・請求先住所のバリデーション
+use Illuminate\Support\Facades\DB; //トランザクションは、DBファサードが提供する機能なので、まずはDBファサードを有効にする
 
 class DetailController extends Controller
 {
@@ -24,11 +27,9 @@ class DetailController extends Controller
      */
     public function index()
     {
-        //
-
+        //会社の請求先情報を取得
         $deteils = $this->deteil->all();
         return view("company.detail", ['deteil' => $deteils]);
-        
     }
 
     /**
@@ -42,21 +43,11 @@ class DetailController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(DetailRequest $request, string $id)
     {
-        //
-
-        $validatedDetail = $request->validate([ 
-            "B_Name" => ["required", "string", "max:255"],
-            "B_Address" => ["required", "string", "max:255"],
-            "B_Tel" => ["required", "string", "max:255"],
-            "B_Dapart" => ["required", "string", "max:255"],
-            "B_AddName" => ["required", "string", "max:255"],
-        ]);
-        $detail = new Deteil($validatedDetail);
-        $this->company->deteil()->save($detail); 
-
-
+        //会社の請求先情報を登録
+        $validatedDetail = $request->validated();
+        $this->company->findOrFail($id)->deteil()->create($validatedDetail); 
         return redirect()->route("company.index");    
     }
 
@@ -65,7 +56,7 @@ class DetailController extends Controller
      */
     public function show(string $id)
     {
-        //
+        //対象のレコード（詳細情報、請求先情報）を取得　　※詳細ボタン
         $companies = $this->company->findOrFail($id);
         $deteils = $companies->deteil;
         return view("company.detail", ["company" => $companies, "deteil" => $deteils]);
@@ -76,36 +67,26 @@ class DetailController extends Controller
      */
     public function edit(string $id)
     {
-        //
+        //更新の際にレコード（詳細情報、請求先情報）を取得　　※編集ボタン
+
         $companies = $this->company->findOrFail($id);
         $deteils = $companies->deteil;
-        return view("company.edit", ["hensu" => $companies, "hensu1" => $deteils]);
-        
+        return view("company.edit", ["company" => $companies, "deteil" => $deteils]);
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(CompanyDetailRequest $request, string $id)
     {
-        //
-        $validated = $request->validate([
-            "Com_Name" => ["required", "string", "max:255"],
-            "Address" => ["required", "string", "max:255"],
-            "Tel" => ["required", "string", "max:255"],
-            "Name" => ["required", "string", "max:255"]
-        ]);
-        $this->company->findOrFail($id)->update($validated);
+        //会社情報と請求先情報を同時に更新
+        $validation = $request->validated();
 
-        $validatedDetail = $request->validate([ 
-            "B_Name" => ["required", "string", "max:255"],
-            "B_Address" => ["required", "string", "max:255"],
-            "B_Tel" => ["required", "string", "max:255"],
-            "B_Dapart" => ["required", "string", "max:255"],
-            "B_AddName" => ["required", "string", "max:255"],
-        ]);
-        $this->company->findOrFail($id)->deteil->update($validatedDetail); //deteilは既存の Deteil モデルを更新する
-        
+        DB::transaction(function() use ($id, $validation) {
+            $this->company->findOrFail($id)->update($validation);
+            $this->company->findOrFail($id)->deteil->update($validation);
+        });
+
         return redirect()->route("company.index");
     }
 
@@ -114,9 +95,12 @@ class DetailController extends Controller
      */
     public function destroy(string $id)
     {
-        //
-        $this->company->findOrFail($id)->deteil->delete();
-        $this->company->findOrFail($id)->delete();
+        //会社情報と詳細情報を同時に削除
+
+        DB::transaction(function() use ($id) {
+            $this->company->findOrFail($id)->deteil->delete();
+            $this->company->findOrFail($id)->delete();
+        });
 
         return redirect()->route("company.index");
     }

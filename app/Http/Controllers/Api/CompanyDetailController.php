@@ -7,10 +7,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Company; //追記
 use App\Models\Deteil; //追記２
+use App\Http\Requests\DetailRequest; //請求先住所のバリデーション
+use App\Http\Requests\CompanyDetailRequest; //会社・請求先住所のバリデーション
+use Illuminate\Support\Facades\DB; //トランザクションは、DBファサードが提供する機能なので、まずはDBファサードを有効にする
 
 class CompanyDetailController extends Controller
 {
-    //
+
     private Company $company;
     private Deteil $deteil; //追記２
 
@@ -19,52 +22,38 @@ class CompanyDetailController extends Controller
         $this->deteil = $deteil;
     }
 
-    public function store(Request $request, int $id)
+    public function store(DetailRequest $request, int $id)
     {
-
-        //詳細情報のバリデーション
-        $validatedDetail = $request->validate([
-            "B_Name" => ["required", "string", "max:255"],
-            "B_Address" => ["required", "string", "max:255"],
-            "B_Tel" => ["required", "string", "max:255"],
-            "B_Dapart" => ["required", "string", "max:255"],
-            "B_AddName" => ["required", "string", "max:255"],
-        ]);
-        $companydata = $this->company->findOrFail($id);
-
-        $detailModel = new Deteil($validatedDetail);
-
-        $companydata->deteil()->save($detailModel);
+        //会社の請求先情報を登録することができる
+        $validatedDetail = $request->validated();
+        $this->company->findOrFail($id)->deteil()->create($validatedDetail); 
 
         return ["message" => "ok"];
     }
 
     public function show(string $id)
     {
-        //
-        $companies = $this->company->findOrFail($id);
-        $details = $companies->deteil;
-        return $details;
+        //会社の請求先情報だけを取得することができる
+        $detail = $this->company->findOrFail($id)->deteil;
+            //$detail = $this->deteil->all();　　※削除処理がされていない全ての請求先情報の取得の場合
+
+        return $detail;
     }
 
-    public function update(Request $request, string $id)
+    public function update(DetailRequest $request, string $id)
     {
-        //
-        $validatedDetail = $request->validate([ 
-            "B_Name" => ["required", "string", "max:255"],
-            "B_Address" => ["required", "string", "max:255"],
-            "B_Tel" => ["required", "string", "max:255"],
-            "B_Dapart" => ["required", "string", "max:255"],
-            "B_AddName" => ["required", "string", "max:255"],
-        ]);
-        $this->company->findOrFail($id)->deteil->update($validatedDetail);
+        //会社の請求先情報を更新することができる
+        $validation = $request->validated();
+        $this->company->findOrFail($id)->deteil->update($validation);
+
         return ["message" => "ok"];
     }
 
     public function destroy(string $id)
     {
-        //
+        //会社の請求先情報だけを論理削除することができる
         $this->company->findOrFail($id)->deteil->delete();
+
         return ["message" => "ok"];
     }
 
